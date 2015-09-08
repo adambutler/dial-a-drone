@@ -1,16 +1,15 @@
-Drone  = require "rolling-spider"
+RollingSpider = require('rolling-spider')
+drone = new RollingSpider
+
 express = require "express"
-env    = require "node-env-file"
 app = express()
 
-try
-  env "#{__dirname}/.env"
-catch error
-  console.log error
-
-drone = new Drone(process.env.UUID)
-
 fakeMode = false
+
+droneOptions = {
+  speed: 50
+  steps: 20
+}
 
 app.get '/takeoff', (req, res) ->
   drone.takeOff() unless fakeMode
@@ -18,23 +17,23 @@ app.get '/takeoff', (req, res) ->
   res.send 'OK!'
 
 app.get '/left', (req, res) ->
-  drone.tiltLeft() unless fakeMode
-  console.log "drone.tiltLeft()"
+  drone.left(droneOptions) unless fakeMode
+  console.log "drone.left()"
   res.send 'OK!'
 
 app.get '/right', (req, res) ->
-  drone.tiltRight() unless fakeMode
-  console.log "drone.tiltRight()"
+  drone.right(droneOptions) unless fakeMode
+  console.log "drone.right()"
   res.send 'OK!'
 
-app.get '/back', (req, res) ->
-  drone.back() unless fakeMode
-  console.log "drone.back()"
+app.get '/backward', (req, res) ->
+  drone.backward(droneOptions) unless fakeMode
+  console.log "drone.backward()"
   res.send 'OK!'
 
 app.get '/forward', (req, res) ->
-  drone.front() unless fakeMode
-  console.log "drone.front()"
+  drone.forward(droneOptions) unless fakeMode
+  console.log "drone.forward()"
   res.send 'OK!'
 
 app.get '/land', (req, res) ->
@@ -47,12 +46,25 @@ app.get '/flip', (req, res) ->
   console.log "drone.frontFlip()"
   res.send 'OK!'
 
+app.get '/up', (req, res) ->
+  drone.up() unless fakeMode
+  console.log "drone.up()"
+  res.send 'OK!'
+
+app.get '/down', (req, res) ->
+  drone.down() unless fakeMode
+  console.log "drone.down()"
+  res.send 'OK!'
+
 if fakeMode
   app.listen 5001
 else
   drone.connect ->
     console.log 'Connected'
     drone.setup ->
-      console.log 'setup'
+      console.log 'Ready'
       drone.startPing()
       app.listen 5001
+
+process.on 'exit', (code) ->
+  drone.disconnect()
