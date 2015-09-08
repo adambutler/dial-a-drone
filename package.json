@@ -8,6 +8,7 @@
   "dependencies": {
     "express": "^4.12.3",
     "node-env-file": "^0.1.7",
+    "pusher-client": "^0.2.3",
     "rolling-spider": "1.5.0",
     "twilio": "^2.0.0"
   }
