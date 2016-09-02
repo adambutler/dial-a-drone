@@ -4,6 +4,7 @@ require 'twilio-ruby'
 require 'httparty'
 
 flipCount = 0
+moveCount = 0
 
 def perform(action)
   puts action
@@ -18,7 +19,7 @@ post '/' do
   Twilio::TwiML::Response.new do |r|
     r.Gather :numDigits => '1', :action => '/action', :method => 'post', :timeout => 60 do |g|
       flipCount = 0
-      g.Say 'Thanks for calling Dial-a-drone. Now lets fuck this place up. On your command Sir.', voice: "man"
+      g.Say 'Thanks for calling Dial-a-drone. Now lets fuck this place up', voice: "man"
     end
   end.text
 end
@@ -50,11 +51,14 @@ post '/action' do
   Twilio::TwiML::Response.new do |r|
     r.Gather :numDigits => '1', :action => '/action', :method => 'post', :timeout => 60 do |g|
       unless ["1", "9", "5"].include? params["Digits"]
-        g.Say "On the move. Watch those pretty faces folks."
+        if moveCount < 1
+          g.Say "On the move. Watch those pretty faces folks."
+          moveCount = moveCount + 1
+        end
       end
 
       if params["Digits"] == "5"
-        if flipCount < 2
+        if flipCount < 1
           g.Say 'That was bad ass!'
         else
           g.Say "Ok. Stop it! I'm dizzy"
