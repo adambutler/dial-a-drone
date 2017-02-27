@@ -1,0 +1,26 @@
+{
+  "name": "dial-a-drone",
+  "version": "1.0.0",
+  "description": "Control a drone using the Nexmo API",
+  "main": "index.js",
+  "scripts": {
+    "start": "babel-node app.js"
+  },
+  "keywords": [
+    "drone",
+    "nexmo",
+    "sms",
+    "dtmf"
+  ],
+  "author": "Adam Butler <adam@lab.io>",
+  "license": "MIT",
+  "dependencies": {
+    "babel-cli": "^6.23.0",
+    "babel-preset-env": "^1.1.8",
+    "babel-preset-es2015": "^6.22.0",
+    "body-parser": "^1.16.1",
+    "express": "^4.14.1",
+    "node-env-file": "^0.1.8",
+    "rolling-spider": "^1.5.2"
+  }
+}
