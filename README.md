@@ -2,6 +2,8 @@
 
 Control the Parrot Minidrone Rolling Spider with SMS & a phone call using [Nexmo](https://nexmo.com)
 
+![Dial-a-drone](https://i.imgur.com/OBiImSz.gif)
+
 ## Install
 
 ```sh
