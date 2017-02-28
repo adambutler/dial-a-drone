@@ -10,7 +10,7 @@ try {
   console.log(error)
 }
 
-const drone = new RollingSpider(process.env.UUID)
+const drone = new RollingSpider()
 const app = express()
 app.use(bodyParser.json())
 
