@@ -10,47 +10,56 @@ try {
   console.log(error)
 }
 
-const drone = new RollingSpider()
+const drone = new RollingSpider({ uuid: process.env.DRONE_UUID })
 const app = express()
 app.use(bodyParser.json())
+
+let flipCount = 0
+let moveCount = 0
 
 const perform = (action, callback) => {
   return new Promise((resolve, reject) => {
     switch (action.toLowerCase()) {
       case '2':
       case 'forward':
-        drone.front()
-        resolve('Going forward')
+        drone.forward({ steps: 25 })
+        moveCount++
+        resolve({ action: 'forward', type: 'move', description: 'Going forward' })
         break
       case '6':
       case 'right':
-        drone.right()
-        resolve('Going right')
+        drone.right({ steps: 25 })
+        moveCount++
+        resolve({ action: 'right', type: 'move', description: 'Going right' })
         break
       case '8':
       case 'back':
-        drone.back()
-        resolve('Going back')
+        drone.backward({ steps: 25 })
+        moveCount++
+        resolve({ action: 'back', type: 'move', description: 'Going back' })
         break
       case '4':
       case 'left':
-        drone.left()
-        resolve('Going left')
+        drone.left({ steps: 25 })
+        moveCount++
+        resolve({ action: 'left', type: 'move', description: 'Going left' })
         break
       case '1':
       case 'takeoff':
         drone.takeoff()
-        resolve('Taking off')
+        resolve({ action: 'takeoff', type: 'takeoff', description: 'Taking off' })
         break
       case '9':
       case 'land':
         drone.land()
-        resolve('Landing')
+        moveCount = 0
+        resolve({ action: 'land', type: 'land', description: 'Landing' })
         break
       case '5':
       case 'flip':
-        drone.flip()
-        resolve('Flipping')
+        drone.frontFlip()
+        flipCount++
+        resolve({ action: 'flip', type: 'flip', description: 'Flipping' })
         break
       default:
         return reject(`Got "${action}" but instruction was not understood.`)
@@ -74,8 +83,8 @@ app.get('/answer', (req, res) => {
   res.json([
     {
       action: "talk",
-      voiceName: "Emma",
-      text: "Welcome to dial-a-drone."
+      voiceName: "Brian",
+      text: "Welcome to dial-a-drone. Now let's fuck this place up."
     },
     {
       action: "input",
@@ -99,13 +108,41 @@ app.post('/dtmf', (req, res) => {
   perform(req.body.dtmf)
   .then((action) => {
     console.log(action);
+
+    switch (action.type) {
+      case 'move':
+        if (moveCount == 1) {
+          responsePayload.unshift({
+            action: "talk",
+            voiceName: "Brian",
+            text: "On the move. Watch those pretty faces folks."
+          })
+        }
+        break;
+      case 'flip':
+        if (flipCount == 1) {
+          responsePayload.unshift({
+            action: "talk",
+            voiceName: "Brian",
+            text: "That was badass"
+          })
+        } else if (flipCount == 2) {
+          responsePayload.unshift({
+            action: "talk",
+            voiceName: "Brian",
+            text: "Ok stop it. I'm dizzy."
+          })
+        }
+        break;
+    }
+
     res.json(responsePayload)
   })
   .catch((error) => {
     console.log(error);
     responsePayload.unshift({
       action: "talk",
-      voiceName: "Emma",
+      voiceName: "Brian",
       text: "Sorry I didn't understand that. Try again."
     })
 
@@ -113,6 +150,14 @@ app.post('/dtmf', (req, res) => {
   })
 })
 
-app.listen(3000, () => {
-  console.log('Dial-a-Drone listening on port 3000!')
-})
+drone.connect(() => {
+  console.log('connected');
+  drone.setup(() => {
+    console.log('setup');
+    drone.startPing();
+
+    app.listen(3000, () => {
+      console.log('Dial-a-Drone listening on port 3000!')
+    })
+  });
+});
